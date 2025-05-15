@@ -6,7 +6,7 @@ from anomalib.models.image.reverse_distillation import ReverseDistillation
 model = ReverseDistillation(
     backbone="wide_resnet50_2",
     layers=["layer1", "layer2", "layer3"],
-    anomaly_map_mode="add",
+    anomaly_map_mode="multiply",
     pre_trained=True,
     pre_processor=True
 )
