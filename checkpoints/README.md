@@ -1,0 +1,1 @@
+Model eğitim sonucu oluşan checkpointler bu klasör altında oluşacaktır.
