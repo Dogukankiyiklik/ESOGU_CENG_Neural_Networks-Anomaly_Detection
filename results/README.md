@@ -1,0 +1,1 @@
+Model test sonucu oluşan görseller bu dizine kaydedilecek
