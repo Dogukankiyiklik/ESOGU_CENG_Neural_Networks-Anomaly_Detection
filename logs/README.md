@@ -1,0 +1,1 @@
+Model eğitilirken oluşan terminal çıktılarını bu dizinde txt olarak kaydediyorum. Bu sayede içindeki verileri okuyarak loss grafiğini çiziyorum.
