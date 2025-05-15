@@ -69,6 +69,6 @@ results = engine.predict(model=model, datamodule=datamodule)
 # ------------------ IoU Hesaplama ------------------
 evaluate_iou_simple(
     results,
-    gt_dir="/content/anomaly_detection/preprocessed_wood_dataset/wood/ground_truth/defect/defect",
+    gt_dir="/content/anomaly_detection/preprocessed_wood_dataset/wood/ground_truth/defect",
     threshold=0.30
 )
