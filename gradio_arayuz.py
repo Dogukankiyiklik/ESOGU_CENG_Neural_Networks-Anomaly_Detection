@@ -29,15 +29,15 @@ def run_and_parse(model_name, operation):
         image_dir = "/content/anomaly_detection/results/Patchcore/wood/latest/images/test"
     elif model_name == "STFPM":
         script = "/content/anomaly_detection/Anomalib/stfpm/stfpm_train.py" if operation == "Train" else "/content/anomaly_detection/Anomalib/stfpm/stfpm_test.py"
-        checkpoint_path = "/content/anomaly_detection/checkpoints/STFPM/wood/latest/weights/lightning/model.ckpt"
-        image_dir = "/content/anomaly_detection/results/STFPM/wood/latest/images/test"
+        checkpoint_path = "/content/anomaly_detection/checkpoints/Stfpm/wood/latest/weights/lightning/model.ckpt"
+        image_dir = "/content/anomaly_detection/results/Stfpm/wood/latest/images/test"
     elif model_name == "DRAEM":
         script = "/content/anomaly_detection/Anomalib/draem/draem_train.py" if operation == "Train" else "/content/anomaly_detection/Anomalib/draem/draem_test.py"
-        checkpoint_path = "/content/anomaly_detection/checkpoints/draem/wood/latest/weights/lightning/model.ckpt"
-        image_dir = "/content/anomaly_detection/results/DRAEM/wood/latest/images/test"
+        checkpoint_path = "/content/anomaly_detection/checkpoints/Draem/wood/latest/weights/lightning/model.ckpt"
+        image_dir = "/content/anomaly_detection/results/Draem/wood/latest/images/test"
     elif model_name == "REVERSE DISTILLATION":
         script = "/content/anomaly_detection/Anomalib/reverse_distillation/reverse_distillation_train.py" if operation == "Train" else "/content/anomaly_detection/Anomalib/reverse_distillation/reverse_distillation_test.py"
-        checkpoint_path = "/content/anomaly_detection/checkpoints/reverse_distillation/wood/latest/weights/lightning/model.ckpt"
+        checkpoint_path = "/content/anomaly_detection/checkpoints/ReverseDistillation/wood/latest/weights/lightning/model.ckpt"
         image_dir = "/content/anomaly_detection/results/ReverseDistillation/wood/latest/images/test"
     else:
         return "❗️ Model seçimi hatalı.", pd.DataFrame(), []
