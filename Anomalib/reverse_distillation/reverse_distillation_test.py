@@ -21,17 +21,39 @@ def compute_iou(pred_mask, gt_mask):
     else:
         return jaccard_score(gt_flat, pred_flat)
 
-def evaluate_iou_simple(results, gt_dir, threshold=0.30):
+# ---------------- IoU Değerlendirme ----------------
+
+def evaluate_iou_adaptive(results, gt_dir, percentile=93, min_area=10):
     ious = []
+    skipped = 0
+
     for result in results:
+        # Sadece 'defect' klasöründen gelen görselleri dahil et
+        if "defect" not in result.image_path[0]:
+            continue
+
         anomaly_map = result.anomaly_map[0].detach().cpu().numpy()
         anomaly_map = (anomaly_map - anomaly_map.min()) / (anomaly_map.max() - anomaly_map.min() + 1e-8)
+        anomaly_map = cv2.GaussianBlur(anomaly_map, (3, 3), 0)
+
+        threshold = np.percentile(anomaly_map, percentile)
         binary = (anomaly_map > threshold).astype(np.uint8)
 
+        # Maske genişletme
+        binary = cv2.dilate(binary, np.ones((3, 3), np.uint8), iterations=3)
+
+        # Küçük alanları temizle
+        num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(binary, connectivity=8)
+        for i in range(1, num_labels):
+            if stats[i, cv2.CC_STAT_AREA] < min_area:
+                binary[labels == i] = 0
+
+        # GT maskesini al
         filename = os.path.basename(result.image_path[0])
         gt_path = os.path.join(gt_dir, filename)
         if not os.path.exists(gt_path):
             print(f"Uyarı: GT bulunamadı → {filename}")
+            skipped += 1
             continue
 
         gt_mask = read_image(gt_path)
@@ -42,13 +64,25 @@ def evaluate_iou_simple(results, gt_dir, threshold=0.30):
         iou = compute_iou(binary, gt_mask)
         ious.append(iou)
 
-    print(f"\n== IoU Sonucu (Threshold={threshold}) ==")
-    print(f"Ortalama IoU: {np.mean(ious):.4f}")
+    if len(ious) == 0:
+        mean_iou = 0.0
+        print("Hiç IoU hesaplanamadı (GT maskesi eksik olabilir).")
+    else:
+        mean_iou = np.mean(ious)
 
-# ------------------ Modeli Yükle ------------------
-model = ReverseDistillation.load_from_checkpoint("/content/anomaly_detection/checkpoints/ReverseDistillation/wood/latest/weights/lightning/model.ckpt")
+    print(f"\n== IoU Sonucu (Percentile={percentile}, Min Area={min_area}) ==")
+    print(f"Ortalama IoU: {mean_iou:.4f} (Toplam: {len(ious)} örnek)")
+    if skipped > 0:
+        print(f"{skipped} görselde GT maskesi bulunamadı.")
 
-# ------------------ Veri Seti ------------------
+# ---------------- Modeli Yükle ----------------
+
+model = ReverseDistillation.load_from_checkpoint(
+    "/content/anomaly_detection/checkpoints/ReverseDistillation/wood/latest/weights/lightning/model.ckpt"
+)
+
+# ---------------- Veri Seti ----------------
+
 datamodule = Folder(
     name="wood",
     root="/content/anomaly_detection/preprocessed_wood_dataset/wood",
@@ -61,14 +95,17 @@ datamodule = Folder(
     num_workers=4,
 )
 
-# ------------------ Test Süreci ------------------
+# ---------------- Test Süreci ----------------
+
 engine = Engine(default_root_dir="/content/anomaly_detection/results")
 engine.test(model=model, datamodule=datamodule)
 results = engine.predict(model=model, datamodule=datamodule)
 
-# ------------------ IoU Hesaplama ------------------
-evaluate_iou_simple(
+# ---------------- IoU Hesapla ----------------
+
+evaluate_iou_adaptive(
     results,
-    gt_dir="/content/anomaly_detection/preprocessed_wood_dataset/wood/ground_truth/defect/defect",
-    threshold=0.30
+    gt_dir="/content/anomaly_detection/preprocessed_wood_dataset/wood/ground_truth/defect",
+    percentile=94,
+    min_area=8
 )
