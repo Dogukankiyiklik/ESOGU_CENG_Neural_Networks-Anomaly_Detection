@@ -31,7 +31,7 @@ datamodule = Folder(
 # -------------------- Engine --------------------
 
 engine = Engine(
-    max_epochs=35,
+    max_epochs=20,
     accelerator="auto",
     devices=1,
     default_root_dir="/content/anomaly_detection/checkpoints",
