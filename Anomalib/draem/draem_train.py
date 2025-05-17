@@ -29,7 +29,7 @@ datamodule = Folder(
 
 # --------------------- Eğitim Motoru ---------------------
 engine = Engine(
-    max_epochs=30,
+    max_epochs= 20,
     accelerator="auto",
     devices=1,
     default_root_dir="/content/anomaly_detection/checkpoints",
